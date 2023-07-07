@@ -5,11 +5,10 @@ from langchain.embeddings import OpenAIEmbeddings
 from langchain.vectorstores import Chroma
 from langchain.chains import RetrievalQA
 
-# When you are uploading to Streamlit, set your keys like this:
-# pinecone_api_key = st.secrets["API_KEYS"]["pinecone"]
+# Get the OpenAI API key from Streamlit secrets
 openai_api_key = st.secrets["API_KEYS"]["openai"]
 
-def generate_response(uploaded_file, openai_api_key, query_text):
+def generate_response(uploaded_file, query_text):
     # Load document if file is uploaded
     if uploaded_file is not None:
         documents = [uploaded_file.read().decode()]
@@ -26,7 +25,6 @@ def generate_response(uploaded_file, openai_api_key, query_text):
         qa = RetrievalQA.from_chain_type(llm=OpenAI(openai_api_key=openai_api_key), chain_type='stuff', retriever=retriever)
         return qa.run(query_text)
 
-
 # Page title
 st.set_page_config(page_title='🦜🔗 Ask the Doc App')
 st.title('🦜🔗 Ask the Doc App')
@@ -38,7 +36,7 @@ query_text = st.text_input('Enter your question:', placeholder = 'Please provide
 
 # Form input and query
 result = []
-if uploaded_file and query_text:
+if uploaded_file is not None and query_text:
     with st.spinner('Calculating...'):
         response = generate_response(uploaded_file, query_text)
         result.append(response)
